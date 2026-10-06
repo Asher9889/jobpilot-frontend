@@ -5,10 +5,7 @@ type TelegramQrProps = {
   size?: number
 }
 
-export function TelegramQr({
-  value = "tg://login?token=jobpilot-preview",
-  size = 176,
-}: TelegramQrProps) {
+export function TelegramQr({ value = "tg://login?token=jobpilot-preview",size = 176 }: TelegramQrProps) {
   return (
     <QRCodeSVG
       // role="img"
