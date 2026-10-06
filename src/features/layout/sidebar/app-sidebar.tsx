@@ -15,7 +15,7 @@ import { footerNav, mainNav, sidebarUser } from "./sidebar-config"
 
 export default function AppSidebar() {
   return (
-    <Sidebar collapsible="offcanvas">
+    <Sidebar collapsible="icon">
       <SidebarBrand logo={BriefcaseBusiness} title="JobPilot" description="Hiring workspace" />
       <SidebarContent>
         <SidebarSearch placeholder="Search jobs, candidates…" />

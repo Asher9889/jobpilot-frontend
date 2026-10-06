@@ -1,0 +1,72 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - generic [ref=f6e5]:
+      - list [ref=f6e7]:
+        - listitem [ref=f6e8]:
+          - link "JobPilot Hiring workspace" [ref=f6e9] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f6e15]:
+              - generic [ref=f6e16]: JobPilot
+              - generic [ref=f6e17]: Hiring workspace
+      - generic [ref=f6e18]:
+        - searchbox "Search jobs, candidates…" [ref=f6e20]
+        - generic [ref=f6e21]:
+          - generic [ref=f6e22]: Overview
+          - list [ref=f6e24]:
+            - listitem [ref=f6e25]:
+              - link "Dashboard" [ref=f6e26] [cursor=pointer]:
+                - /url: /
+        - generic [ref=f6e33]:
+          - generic [ref=f6e34]: Recruiting
+          - list [ref=f6e36]:
+            - listitem [ref=f6e37]:
+              - link "Jobs 12" [ref=f6e38] [cursor=pointer]:
+                - /url: /jobs
+                - generic [ref=f6e43]: Jobs
+                - generic: "12"
+            - listitem [ref=f6e44]:
+              - link "Candidates" [ref=f6e45] [cursor=pointer]:
+                - /url: /candidates
+            - listitem [ref=f6e52]:
+              - link "Companies" [ref=f6e53] [cursor=pointer]:
+                - /url: /companies
+            - listitem [ref=f6e59]:
+              - button "Applications" [expanded] [ref=f6e60] [cursor=pointer]
+              - list [ref=f6e67]:
+                - listitem [ref=f6e68]:
+                  - link "Pipeline" [ref=f6e69] [cursor=pointer]:
+                    - /url: /applications/pipeline
+                - listitem [ref=f6e71]:
+                  - link "Interviewing" [ref=f6e72] [cursor=pointer]:
+                    - /url: /applications/interviewing
+                - listitem [ref=f6e74]:
+                  - link "Archived" [ref=f6e75] [cursor=pointer]:
+                    - /url: /applications/archived
+        - generic [ref=f6e77]:
+          - generic [ref=f6e78]: Organize
+          - list [ref=f6e80]:
+            - listitem [ref=f6e81]:
+              - link "Tags" [ref=f6e82] [cursor=pointer]:
+                - /url: /tags
+            - listitem [ref=f6e87]:
+              - link "Reports" [ref=f6e88] [cursor=pointer]:
+                - /url: /reports
+      - generic [ref=f6e93]:
+        - list [ref=f6e96]:
+          - listitem [ref=f6e97]:
+            - link "Help & Support" [ref=f6e98] [cursor=pointer]:
+              - /url: /help
+          - listitem [ref=f6e103]:
+            - link "Settings" [ref=f6e104] [cursor=pointer]:
+              - /url: /settings
+        - generic [ref=f6e110]:
+          - generic [ref=f6e111]: SK
+          - generic [ref=f6e112]:
+            - paragraph [ref=f6e113]: Saurabh Kumar
+            - paragraph [ref=f6e114]: saurabh@jobpilot.dev
+      - button "Toggle Sidebar" [ref=f6e115]
+    - main [ref=f6e116]:
+      - button "Toggle Sidebar" [ref=f6e118] [cursor=pointer]
+      - main [ref=f6e120]:
+        - generic [ref=f6e121]: Hi
+  - button "Open Next.js Dev Tools" [ref=f6e127] [cursor=pointer]
