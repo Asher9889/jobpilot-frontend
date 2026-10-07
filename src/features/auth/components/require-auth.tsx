@@ -7,11 +7,10 @@ import { useCurrentUser } from "../hooks/use-auth"
 import { PageLoader } from "./page-loader"
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { status, user } = useCurrentUser();
+  const { status } = useCurrentUser();
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log("RequireAuth status:", user);
   useEffect(() => {
     if (status === AUTH_STATUS.UNAUTHENTICATED) {
       router.replace(`${AUTH_ROUTES.LOGIN}?next=${encodeURIComponent(pathname)}`)

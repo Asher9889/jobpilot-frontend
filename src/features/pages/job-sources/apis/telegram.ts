@@ -1,5 +1,5 @@
 import { apiEndPoints, envConfig } from "@/config"
-import type { ConnectTelegramViaQrOptions, TelegramConnectedUser, TelegramQrCode, TelegramSseEvent } from "../types/telegram"
+import type { ConnectTelegramViaQrOptions, TelegramConnectViaQrResponse, TelegramProfile, TelegramQrCode, TelegramSseEvent } from "../types/telegram"
 
 const FRAME_DELIMITER = "\n\n"
 
@@ -25,7 +25,7 @@ function parseSseEvent(frame: string): TelegramSseEvent | null {
     case "qr":
       return { type: "qr", data: data as TelegramQrCode }
     case "done":
-      return { type: "done", data: data as TelegramConnectedUser }
+      return { type: "done", data: data as TelegramConnectViaQrResponse }
     case "error":
       return { type: "error", data: data as { message: string } }
     default:
@@ -33,7 +33,7 @@ function parseSseEvent(frame: string): TelegramSseEvent | null {
   }
 }
 
-async function readSseStream( response: Response, options: ConnectTelegramViaQrOptions): Promise<TelegramConnectedUser> {
+async function readSseStream( response: Response, options: ConnectTelegramViaQrOptions): Promise<TelegramProfile> {
   if (!response.body) {
     throw new Error("Telegram login stream is not supported by this browser")
   }
@@ -49,7 +49,7 @@ async function readSseStream( response: Response, options: ConnectTelegramViaQrO
 
     const { done, value } = await reader.read()
     if (done) {
-      break
+      break;
     }
 
     buffer += decoder.decode(value, { stream: true })
@@ -70,7 +70,7 @@ async function readSseStream( response: Response, options: ConnectTelegramViaQrO
         case "error":
           throw new Error(event.data.message)
         case "done":
-          return event.data
+          return event.data.user
       }
     }
   }
@@ -78,7 +78,7 @@ async function readSseStream( response: Response, options: ConnectTelegramViaQrO
   throw new Error("Telegram login stream closed before authentication completed")
 }
 
-export async function connectTelegramViaQr(options: ConnectTelegramViaQrOptions): Promise<TelegramConnectedUser> {
+export async function connectTelegramViaQr(options: ConnectTelegramViaQrOptions): Promise<TelegramProfile> {
   const endpoint = apiEndPoints.jobSources.telegram.connectViaQR;
   const url = `${envConfig.baseURL}${endpoint.url}`;
 

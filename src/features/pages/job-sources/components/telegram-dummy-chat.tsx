@@ -8,7 +8,7 @@ type DummyMessage = {
   at: string
 }
 
-const dummyMessages: DummyMessage[] = [
+const loginMessages: DummyMessage[] = [
   {
     id: 1,
     sender: "telegram",
@@ -35,7 +35,41 @@ const dummyMessages: DummyMessage[] = [
   },
 ]
 
-export function TelegramDummyChat() {
+const alertMessages: DummyMessage[] = [
+  {
+    id: 1,
+    sender: "telegram",
+    text: "3 new jobs match your preferences in Bengaluru.",
+    at: "9:12 AM",
+  },
+  {
+    id: 2,
+    sender: "telegram",
+    text: "Frontend Engineer · Acme Corp - React, Next.js - Rs. 18-26 LPA - Hybrid",
+    at: "9:12 AM",
+  },
+  {
+    id: 3,
+    sender: "you",
+    text: "Show me the full description",
+    at: "9:15 AM",
+  },
+  {
+    id: 4,
+    sender: "telegram",
+    text: "Application submitted. You'll get updates here as the status changes.",
+    at: "9:15 AM",
+  },
+]
+
+type TelegramDummyChatProps = {
+  variant?: "login" | "preview"
+}
+
+export function TelegramDummyChat({ variant = "login" }: TelegramDummyChatProps) {
+  const isPreview = variant === "preview"
+  const messages = isPreview ? alertMessages : loginMessages
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-card">
       <header className="flex items-center gap-2 border-b px-4 py-3">
@@ -44,7 +78,9 @@ export function TelegramDummyChat() {
         </span>
         <div className="min-w-0">
           <p className="text-sm font-semibold leading-tight">Telegram</p>
-          <p className="text-xs text-muted-foreground">JobPilot login preview</p>
+          <p className="text-xs text-muted-foreground">
+            {isPreview ? "Job alerts preview" : "JobPilot login preview"}
+          </p>
         </div>
         <span className="ml-auto inline-flex items-center gap-1.5 text-xs text-emerald-600">
           <span className="size-2 rounded-full bg-emerald-500" />
@@ -53,7 +89,7 @@ export function TelegramDummyChat() {
       </header>
 
       <div className="flex-1 space-y-3 p-4">
-        {dummyMessages.map((message) => {
+        {messages.map((message) => {
           const isYou = message.sender === "you"
           return (
             <div
@@ -80,7 +116,9 @@ export function TelegramDummyChat() {
       </div>
 
       <footer className="border-t px-4 py-3 text-xs text-muted-foreground">
-        Dummy messages - shown only to demonstrate the QR login flow.
+        {isPreview
+          ? "Dummy messages - a preview of how job alerts are delivered."
+          : "Dummy messages - shown only to demonstrate the QR login flow."}
       </footer>
     </div>
   )

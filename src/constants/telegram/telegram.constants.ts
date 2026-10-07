@@ -1,0 +1,9 @@
+export const TELEGRAM_ACCOUNT_STATUS = {
+  CONNECTED: "CONNECTED",
+  DISCONNECTED: "DISCONNECTED",
+  EXPIRED: "EXPIRED",
+  REVOKED: "REVOKED",
+  ERROR: "ERROR",
+} as const;
+
+export type TTelegramAccountStatus = (typeof TELEGRAM_ACCOUNT_STATUS)[keyof typeof TELEGRAM_ACCOUNT_STATUS]
