@@ -71,13 +71,20 @@ Example file roles (login feature):
 | `hooks/uselogin.ts` | `useLogin()` wraps `useMutation`; generics inferred from `mutationFn` |
 | `components/login-form.tsx` | the form (react-hook-form + zodResolver) |
 | `components/login-page.tsx` | page composition (header + sections) |
-| `app/login/page.tsx` | barrel: import + render `<LoginPage />` |
+| `app/(public)/login/page.tsx` | barrel: import + render `<LoginPage />` |
+
+## Auth routing (route groups + guards)
+
+- Routes live in two groups: `app/(public)/` (login) and `app/(private)/` (everything else). The sidebar shell lives in `app/(private)/layout.tsx`; the root `app/layout.tsx` only has fonts/providers (`TanStackClientProviders` + `TooltipProvider`).
+- Cross-cutting auth domain: `src/features/auth/` — `types/types.ts` (`AuthUser`, `LoginRequest`), `apis/auth.api.ts` (`loginUser`, `getCurrentUser`, `logoutUser`), `hooks/use-auth.ts` (`useCurrentUser()` → `{ user, status, refetch }`, `status: "loading" | "authenticated" | "unauthenticated"`), `components/` (`page-loader.tsx`, `require-auth.tsx`, `guest-guard.tsx`).
+- `apiEndPoints.auth.me` (`GET /auth/me`) is the single source of session truth (cookie-based; no localStorage). `RequireAuth` wraps `(private)`, `GuestGuard` wraps `(public)`; both render `PageLoader` while `status === "loading"` to avoid flash. `GuestGuard` reads `?next=` (sanitized with `startsWith("/")`) and redirects authenticated users there or to `AUTH_ROUTES.HOME`. `useLogin`'s `onSuccess` invalidates `AUTH_QUERY_KEY` (`["auth", "currentUser"]`, from `src/constants/auth/auth.constants.ts`); guards own all navigation.
+- These routes block on the session, so they opt out of this Next version's Instant Navigation validation: `export const instant = false` on `app/(private)/layout.tsx`, `app/(public)/layout.tsx`, and every page barrel below them (the `instant` route-segment config only works because `cacheComponents: true`; see `node_modules/next/dist/docs/01-app/02-guides/instant-navigation.md`).
 
 ## API layer rules
 
 - `src/config/axios.ts` — axios instance with `baseURL` from `envConfig` and `withCredentials: true` (cookie auth). The response interceptor unwraps `response.data`, normalizes non-2xx into `ApiError` (`message` + `statusCode`), and handles `/auth/refresh` retry on 401. Call via `apiRequest<T>({ url, method, data })`.
 - `src/config/apiEndPoints.ts` — one object, camelCase: `{ <domain>: { <action>: { url, method } } }`. Feature api functions read from here; never hardcode paths in feature code.
-- `src/config/envConfig.ts` — reads `process.env.NEXT_PUBLIC_BASE_URL ?? ""`. `import.meta.env` (Vite) **crashes** in Next, and client-side vars must be prefixed `NEXT_PUBLIC_`. Current value: `http://127.0.0.1:4512/api/v1`.
+- `src/config/envConfig.ts` — reads `process.env.NEXT_PUBLIC_BASE_URL ?? ""`. `import.meta.env` (Vite) **crashes** in Next, and client-side vars must be prefixed `NEXT_PUBLIC_`. Current value: `/api/v1` — **relative**, proxied to the backend by the `rewrites()` in `next.config.ts` (`/api/:path*` → `http://127.0.0.1:4512/api/:path*`). This keeps everything same-origin on `localhost:3001` so the backend's `SameSite=Strict` cookies are attached (localhost vs 127.0.0.1 are different sites; a cross-origin absolute base URL silently drops the cookie). Run the dev server with `npx next dev -p 3001`.
 - Server responses: always `AxiosApiResponse<T>` from `src/types/api-response.type.ts` (`{ success, statusCode, message, data }`). Do not duplicate response shapes per endpoint.
 - **Exception** — SSE/streaming endpoints (e.g. Telegram QR login) cannot be consumed by axios. Use a `fetch`-based streaming reader, but still resolve the URL/method from `apiEndPoints` + `envConfig`. See `src/features/pages/job-sources/apis/telegram.ts`.
 
@@ -120,11 +127,11 @@ Example file roles (login feature):
   - `npx tsc --noEmit`
   - `npm run lint`
 - Enforced rules to respect: `react-hooks/set-state-in-effect` (no synchronous `setState` in an effect body), `react-hooks/purity` (no impure calls like `Date.now()` during render).
-- Pre-existing findings — leave them alone: unused `Image` in `app/page.tsx`; `set-state-in-effect` error in `src/hooks/use-mobile.ts`.
+- Pre-existing findings — leave them alone: `react-hooks/set-state-in-effect` error in `src/hooks/use-mobile.ts`.
 
 ## Backend integration (separate repo)
 
-- Backend repo: `/Users/Programming/jobpilot/jobpilot-backend` (Express). Served at `http://127.0.0.1:4512/api/v1`.
+- Backend repo: `/Users/Programming/jobpilot/jobpilot-backend` (Express). Served at `http://127.0.0.1:4512/api/v1` (frontend reaches it same-origin via the `next.config.ts` rewrite).
 - Runs **without watch** (`tsx --env-file=.env ./src/server.ts`) — after backend edits the process must be restarted manually (`npm run dev` will not pick them up).
-- Auth: JWT in **httpOnly cookies** (`accessToken`/`refreshToken`); CORS must allow `http://localhost:3001` with `credentials: true`. Backend `server.ts` must mount `app.use(express.json())` before POST routes or request bodies arrive as `undefined`.
+- Auth: JWT in **httpOnly cookies** (`accessToken`/`refreshToken`, `SameSite=Strict`); CORS must allow `http://localhost:3001` with `credentials: true`. Backend `server.ts` must mount `app.use(express.json())` before POST routes or request bodies arrive as `undefined`. Because the frontend proxies `/api`, keep at least one of `localhost:3001`/`127.0.0.1:3000` in the backend CORS allowlist (it still checks the `Origin` header on proxied requests).
 - API reference: `docs/auth-api.md` and `docs/user-api.md` (also mirrored in the backend repo).

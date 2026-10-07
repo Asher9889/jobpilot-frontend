@@ -3,9 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import AppSidebar from "@/features/layout/sidebar/app-sidebar";
 import TanStackClientProviders from "@/providers/TanStackClientProviders";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
