@@ -1,5 +1,5 @@
 const envConfig = {
-    baseURL: import.meta.env.BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL ?? "",
 }
 
 

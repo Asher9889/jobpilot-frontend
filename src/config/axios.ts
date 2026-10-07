@@ -3,7 +3,7 @@ import envConfig from './envConfig';
 
 const api = axios.create({
     baseURL: envConfig.baseURL,
-    withCredentials: true, // Important for cookie
+    // withCredentials: true, // Important for cookie
 });
 
 export class ApiError extends Error {
@@ -61,7 +61,7 @@ api.interceptors.response.use(
         }
 
         // Normalize all other errors
-        let responseData = error.response.data as { message?: string, errors?: unknown[], success: boolean, statusCode: number };
+        const responseData = error.response.data as { message?: string, errors?: unknown[], success: boolean, statusCode: number };
 
         const errorData = {
             message: responseData?.message || "An error occurred",

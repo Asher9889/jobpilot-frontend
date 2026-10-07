@@ -1,16 +1,17 @@
 import { QRCodeSVG } from "qrcode.react"
+import type { TelegramQrCode } from "../types/telegram"
 
 type TelegramQrProps = {
-  value?: string
+  qr: TelegramQrCode
   size?: number
 }
 
-export function TelegramQr({ value = "tg://login?token=jobpilot-preview",size = 176 }: TelegramQrProps) {
+export function TelegramQr({ qr, size = 176 }: TelegramQrProps) {
   return (
     <QRCodeSVG
-      // role="img"
+      role="img"
       aria-label="Telegram QR code"
-      value={value}
+      value={qr.url}
       size={size}
       bgColor="#ffffff"
       fgColor="#111827"
