@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import AppSidebar from "@/features/layout/sidebar/app-sidebar";
-import TanStackClientProviders from "../src/providers/TanStackClientProviders";
+import TanStackClientProviders from "@/providers/TanStackClientProviders";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -34,15 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-svh">
         <TanStackClientProviders>
           <TooltipProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-                  <SidebarTrigger />
-                </header>
-                <main className="flex-1 p-4">{children}</main>
-              </SidebarInset>
-            </SidebarProvider>
+            {children}
           </TooltipProvider>
         </TanStackClientProviders>
       </body>

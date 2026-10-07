@@ -3,7 +3,7 @@ import envConfig from './envConfig';
 
 const api = axios.create({
     baseURL: envConfig.baseURL,
-    // withCredentials: true, // Important for cookie
+    withCredentials: true, // Important for cookie
 });
 
 export class ApiError extends Error {
