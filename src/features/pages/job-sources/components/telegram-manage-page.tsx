@@ -2,16 +2,24 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { ArrowLeft, Search } from "lucide-react"
+import { ArrowLeft, CircleAlert, CircleCheck, LoaderCircle, Radar, Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TelegramAvatar } from "@/components/shared/telegram-avatar"
 import type { AuthTelegram } from "@/features/auth/types/types"
+import { ApiError } from "@/config"
+import { JOB_SOURCE_PROVIDER, JOB_SOURCE_TYPE } from "@/constants"
 import { telegramDisplayName } from "@/lib/telegram"
 import { cn } from "@/lib/utils"
+import { useAddJobSources } from "../hooks/use-add-job-sources"
 import { useTelegramSourceSelection } from "../hooks/use-telegram-source-selection"
 import { useTelegramSources } from "../hooks/use-telegram-sources"
+import type {
+  AddJobSourceItem,
+  AddJobSourcesResult,
+  JobSourceApiError,
+} from "../types/job-sources-api"
 import type {
   TelegramSource,
   TelegramSourceFilter,
@@ -24,6 +32,59 @@ const filters: { value: TelegramSourceFilter; label: string }[] = [
   { value: "channel", label: "Channels" },
   { value: "group", label: "Groups" },
 ]
+
+type MonitorFeedback = {
+  kind: "success" | "error"
+  title: string
+  details: string[]
+}
+
+function buildSuccessFeedback(result: AddJobSourcesResult): MonitorFeedback {
+  const { created, skipped } = result
+
+  if (created.length === 0) {
+    return {
+      kind: "success",
+      title: "Selected sources are already monitored",
+      details: [
+        `${skipped.length} ${skipped.length === 1 ? "source was" : "sources were"} already added — nothing new to do.`,
+      ],
+    }
+  }
+
+  const createdLabel = `${created.length} ${created.length === 1 ? "source" : "sources"} added — JobPilot will watch ${created.length === 1 ? "it" : "them"} for new jobs.`
+
+  if (skipped.length === 0) {
+    return {
+      kind: "success",
+      title: "Monitoring started",
+      details: [createdLabel],
+    }
+  }
+
+  return {
+    kind: "success",
+    title: "Monitoring started",
+    details: [
+      createdLabel,
+      `${skipped.length} ${skipped.length === 1 ? "was" : "were"} already monitored.`,
+    ],
+  }
+}
+
+function extractErrorDetails(error: unknown): string[] {
+  if (!(error instanceof ApiError)) return []
+
+  return error.errors
+    .filter(
+      (entry): entry is JobSourceApiError =>
+        typeof entry === "object" && entry !== null && "message" in entry,
+    )
+    .map((entry) => {
+      const identifier = entry.externalSourceId ?? entry.field
+      return identifier ? `${identifier}: ${entry.message}` : entry.message
+    })
+}
 
 function SourcesSkeleton() {
   return (
@@ -48,13 +109,56 @@ function SourcesError({ message, onRetry }: { message: string; onRetry: () => vo
 }
 
 export function TelegramManagePage({ telegram }: { telegram: AuthTelegram }) {
-  const { selectedCount } = useTelegramSourceSelection()
+  const { selectedIds, selectedCount, clearSelection } = useTelegramSourceSelection()
   const { sources, isLoading, error, refetch } = useTelegramSources()
+  const monitorMutation = useAddJobSources()
   const [query, setQuery] = useState("")
   const [filter, setFilter] = useState<TelegramSourceFilter>("all")
+  const [feedback, setFeedback] = useState<MonitorFeedback | null>(null)
 
   const displayName = telegramDisplayName(telegram)
   const normalizedQuery = query.trim().toLowerCase()
+
+  const handleMonitor = () => {
+    if (selectedCount === 0 || monitorMutation.isPending) return
+
+    const sourcesById = new Map(sources.map((source) => [source.id, source]))
+    const items: AddJobSourceItem[] = []
+    for (const id of selectedIds) {
+      const source = sourcesById.get(id)
+      if (!source) continue
+      items.push({
+        provider: JOB_SOURCE_PROVIDER.TELEGRAM,
+        type:
+          source.kind === "channel"
+            ? JOB_SOURCE_TYPE.TELEGRAM_CHANNEL
+            : JOB_SOURCE_TYPE.TELEGRAM_GROUP,
+        externalSourceId: source.id,
+      })
+    }
+    if (items.length === 0) return
+
+    setFeedback(null)
+    monitorMutation.mutate(
+      { sources: items },
+      {
+        onSuccess: ({ data }) => {
+          clearSelection()
+          setFeedback(buildSuccessFeedback(data))
+        },
+        onError: (mutationError) => {
+          setFeedback({
+            kind: "error",
+            title:
+              mutationError instanceof Error
+                ? mutationError.message
+                : "Could not start monitoring",
+            details: extractErrorDetails(mutationError),
+          })
+        },
+      },
+    )
+  }
 
   const matchesQuery = (source: TelegramSource) =>
     !normalizedQuery || source.name.toLowerCase().includes(normalizedQuery)
@@ -80,7 +184,7 @@ export function TelegramManagePage({ telegram }: { telegram: AuthTelegram }) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <Link
         href="/job-sources"
         className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -117,7 +221,7 @@ export function TelegramManagePage({ telegram }: { telegram: AuthTelegram }) {
           <div className="space-y-1">
             <h2 className="text-sm font-semibold">Select sources to monitor</h2>
             <p className="text-xs text-muted-foreground">
-              JobPilot checks these chats for new job postings.
+              Select the chats you want JobPilot to watch, then click Monitor.
             </p>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground">
@@ -171,6 +275,62 @@ export function TelegramManagePage({ telegram }: { telegram: AuthTelegram }) {
           />
         )}
       </section>
+
+      {(feedback || selectedCount > 0) && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-16 z-40 flex flex-col items-center gap-2 px-4">
+          {feedback && (
+            <div
+              className={cn(
+                "pointer-events-auto flex w-full max-w-xl items-start gap-3 rounded-xl border bg-card px-4 py-3 shadow-lg",
+                feedback.kind === "success"
+                  ? "border-emerald-500/30"
+                  : "border-destructive/30",
+              )}
+            >
+              {feedback.kind === "success" ? (
+                <CircleCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+              ) : (
+                <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{feedback.title}</p>
+                {feedback.details.length > 0 && (
+                  <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                    {feedback.details.map((detail) => (
+                      <li key={detail}>{detail}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <button
+                type="button"
+                aria-label="Dismiss message"
+                onClick={() => setFeedback(null)}
+                className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          )}
+
+          {selectedCount > 0 && (
+            <div className="pointer-events-auto flex items-center gap-4 rounded-xl border bg-card px-4 py-3 shadow-lg">
+              <span className="text-sm text-muted-foreground">
+                {selectedCount} {selectedCount === 1 ? "source" : "sources"}{" "}
+                selected
+              </span>
+              <Button size="sm" onClick={handleMonitor} disabled={monitorMutation.isPending}>
+                {monitorMutation.isPending ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : (
+                  <Radar className="size-4" />
+                )}
+                Monitor
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

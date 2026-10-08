@@ -33,6 +33,12 @@ function toggleSource(id: string) {
   emit()
 }
 
+function clearSelection() {
+  if (selectedIds.size === 0) return
+  selectedIds = new Set<string>()
+  emit()
+}
+
 export function useTelegramSourceSelection() {
   const current = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 
@@ -41,5 +47,6 @@ export function useTelegramSourceSelection() {
     selectedCount: current.size,
     isSelected: (id: string) => current.has(id),
     toggleSource,
+    clearSelection,
   }
 }

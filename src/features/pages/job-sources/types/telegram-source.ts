@@ -13,6 +13,7 @@ export type TelegramSourceDto = {
   unreadMentionsCount: number
   lastMessageText: string | null
   lastMessageDate: number | null
+  isMonitored: boolean
 }
 
 export type TelegramSourceKind = "channel" | "group"
@@ -28,6 +29,7 @@ export type TelegramSource = {
   unreadCount: number
   lastMessageText: string | null
   lastMessageDate: number | null
+  isMonitored: boolean
 }
 
 export type TelegramSourceSection = {

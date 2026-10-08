@@ -8,10 +8,12 @@ const api = axios.create({
 
 export class ApiError extends Error {
     statusCode: number;
+    errors: unknown[];
 
-    constructor(message: string, statusCode: number) {
+    constructor(message: string, statusCode: number, errors: unknown[] = []) {
         super(message);
         this.statusCode = statusCode;
+        this.errors = errors;
     }
 }
 
@@ -66,10 +68,11 @@ api.interceptors.response.use(
         const errorData = {
             message: responseData?.message || "An error occurred",
             statusCode: responseData.statusCode || 500,
+            errors: Array.isArray(responseData?.errors) ? responseData.errors : [],
         }
 
         return Promise.reject(
-            new ApiError(errorData.message, errorData.statusCode)
+            new ApiError(errorData.message, errorData.statusCode, errorData.errors)
         );
     }
 )

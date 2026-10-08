@@ -18,6 +18,14 @@ const apiEndPoints = {
         }
     },
     "jobSources": {
+        list: {
+            url: "/job-sources",
+            method: "GET"
+        },
+        addSources: {
+            url: "/job-sources",
+            method: "POST"
+        },
         "telegram": {
             connectViaQR: {
                 url: "/telegram/auth/qr",

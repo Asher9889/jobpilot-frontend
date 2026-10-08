@@ -1,6 +1,18 @@
 "use client"
 
-import { Pin } from "lucide-react"
+import { CircleCheck, Pause, Pin, Trash2 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { useTelegramSourceSelection } from "../hooks/use-telegram-source-selection"
@@ -17,6 +29,60 @@ function formatMessageDate(unixSeconds: number) {
     month: "short",
     day: "numeric",
   })
+}
+
+function PauseSourceDialog() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="xs">
+          <Pause />
+          Pause
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Pause monitoring?</AlertDialogTitle>
+          <AlertDialogDescription>
+            JobPilot will stop checking this source for new job postings. You
+            can start monitoring it again any time.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          {/* TODO: call the backend pause endpoint once it exists; for now the dialog only confirms intent. */}
+          <AlertDialogAction>Pause</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+function RemoveSourceDialog() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="xs" className="text-destructive hover:text-destructive">
+          <Trash2 />
+          Remove
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Remove this source?</AlertDialogTitle>
+          <AlertDialogDescription>
+            JobPilot will stop monitoring this source and it will disappear
+            from your list. The chat itself stays in your Telegram account.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          {/* TODO: call the backend remove endpoint once it exists; for now the dialog only confirms intent. */}
+          <AlertDialogAction variant="destructive">Remove</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
 }
 
 export function TelegramSourceList({
@@ -50,21 +116,32 @@ export function TelegramSourceList({
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {section.sources.map((source) => {
+              const monitored = source.isMonitored
               const checked = isSelected(source.id)
+              const Wrapper = monitored ? "div" : "label"
 
               return (
-                <label
+                <Wrapper
                   key={source.id}
                   className={cn(
-                    "group/field-label flex min-w-0 cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent/40",
-                    checked && "border-[#229ed9]/40 bg-[#229ed9]/5",
+                    "group/field-label flex min-w-0 items-start gap-3 rounded-xl border bg-card p-4 transition-colors",
+                    monitored
+                      ? "border-emerald-500/30 bg-emerald-500/5"
+                      : "cursor-pointer hover:bg-accent/40",
                   )}
                 >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleSource(source.id)}
-                    className="mt-0.5"
-                  />
+                  {monitored ? (
+                    <CircleCheck
+                      className="mt-0.5 size-4 shrink-0 text-emerald-600"
+                      aria-label="Monitored"
+                    />
+                  ) : (
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => toggleSource(source.id)}
+                      className="mt-0.5"
+                    />
+                  )}
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
                       <span className="truncate text-sm font-medium">
@@ -89,8 +166,19 @@ export function TelegramSourceList({
                         {source.lastMessageText}
                       </span>
                     )}
+                    {monitored && (
+                      <span className="mt-2 flex items-center justify-between gap-2 border-t pt-2">
+                        <span className="text-xs font-medium text-emerald-600">
+                          Monitored
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <PauseSourceDialog />
+                          <RemoveSourceDialog />
+                        </span>
+                      </span>
+                    )}
                   </span>
-                </label>
+                </Wrapper>
               )
             })}
           </div>

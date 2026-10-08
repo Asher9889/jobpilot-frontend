@@ -14,10 +14,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { TelegramAvatar } from "@/components/shared/telegram-avatar"
 import type { AuthTelegram } from "@/features/auth/types/types"
 import { telegramDisplayName } from "@/lib/telegram"
-import { useTelegramSourceSelection } from "../hooks/use-telegram-source-selection"
+import { useJobSources } from "../hooks/use-job-sources"
 
 function DisconnectTelegramDialog() {
   return (
@@ -46,7 +47,8 @@ function DisconnectTelegramDialog() {
 }
 
 export function TelegramSourceCard({ telegram }: { telegram: AuthTelegram }) {
-  const { selectedCount } = useTelegramSourceSelection()
+  const { sources, isLoading } = useJobSources()
+  const monitoredCount = sources.length
   const displayName = telegramDisplayName(telegram)
 
   return (
@@ -75,10 +77,14 @@ export function TelegramSourceCard({ telegram }: { telegram: AuthTelegram }) {
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">{selectedCount}</span>{" "}
-        {selectedCount === 1 ? "source" : "sources"} selected
-      </p>
+      {isLoading ? (
+        <Skeleton className="h-4 w-36" />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{monitoredCount}</span>{" "}
+          {monitoredCount === 1 ? "source" : "sources"} monitored
+        </p>
+      )}
 
       <div className="mt-auto flex flex-wrap items-center gap-2">
         <Button asChild size="sm">

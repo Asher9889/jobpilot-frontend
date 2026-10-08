@@ -20,6 +20,7 @@ function toTelegramSource(dto: TelegramSourceDto): TelegramSource | null {
     unreadCount: dto.unreadCount ?? 0,
     lastMessageText: dto.lastMessageText ?? null,
     lastMessageDate: dto.lastMessageDate ?? null,
+    isMonitored: dto.isMonitored ?? false,
   }
 }
 
