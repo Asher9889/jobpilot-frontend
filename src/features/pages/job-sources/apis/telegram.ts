@@ -1,5 +1,7 @@
-import { apiEndPoints, envConfig } from "@/config"
+import { apiEndPoints, apiRequest, envConfig } from "@/config"
+import type { AxiosApiResponse } from "@/types/api-response.type"
 import type { ConnectTelegramViaQrOptions, TelegramConnectViaQrResponse, TelegramProfile, TelegramQrCode, TelegramSseEvent } from "../types/telegram"
+import type { TelegramSourceDto } from "../types/telegram-source"
 
 const FRAME_DELIMITER = "\n\n"
 
@@ -93,4 +95,12 @@ export async function connectTelegramViaQr(options: ConnectTelegramViaQrOptions)
   }
 
   return readSseStream(response, options)
+}
+
+export async function getAvailableTelegramSources(): Promise<AxiosApiResponse<TelegramSourceDto[]>> {
+  const endpoint = apiEndPoints.jobSources.telegram.availableSources
+  return apiRequest<AxiosApiResponse<TelegramSourceDto[]>>({
+    url: endpoint.url,
+    method: endpoint.method,
+  })
 }

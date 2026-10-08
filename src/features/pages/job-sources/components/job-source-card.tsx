@@ -1,13 +1,6 @@
 import Link from "next/link"
 import { ArrowUpRight, Clock3 } from "lucide-react"
-import { TelegramAvatar } from "@/components/shared/telegram-avatar"
 import type { JobSource, JobSourceStatus } from "../types/job-source"
-
-export type JobSourceConnectedUser = {
-  displayName: string
-  username: string | null
-  avatarBase64: string | null
-}
 
 const statusMeta: Record<JobSourceStatus, { label: string; className: string }> = {
   connected: { label: "Connected", className: "text-emerald-600" },
@@ -15,16 +8,9 @@ const statusMeta: Record<JobSourceStatus, { label: string; className: string }> 
   "coming-soon": { label: "Coming soon", className: "text-muted-foreground" },
 }
 
-export function JobSourceCard({
-  source,
-  connectedUser,
-}: {
-  source: JobSource
-  connectedUser?: JobSourceConnectedUser
-}) {
+export function JobSourceCard({ source }: { source: JobSource }) {
   const Icon = source.icon
   const meta = statusMeta[source.status]
-  const isConnected = source.status === "connected" && !!connectedUser
   const isReady = source.status !== "coming-soon"
 
   return (
@@ -44,32 +30,8 @@ export function JobSourceCard({
 
       <p className="text-sm leading-relaxed text-muted-foreground">{source.description}</p>
 
-      {isConnected && connectedUser && (
-        <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-          <TelegramAvatar
-            src={connectedUser.avatarBase64}
-            name={connectedUser.displayName}
-            size="sm"
-          />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{connectedUser.displayName}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {connectedUser.username ? `@${connectedUser.username}` : "Linked account"}
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="mt-auto">
-        {isConnected && source.connectHref ? (
-          <Link
-            href={source.connectHref}
-            className="inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-[#229ed9]"
-          >
-            View details
-            <ArrowUpRight className="size-4" />
-          </Link>
-        ) : isReady && source.connectHref ? (
+        {isReady && source.connectHref ? (
           <Link
             href={source.connectHref}
             className="inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-[#229ed9]"

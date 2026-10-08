@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { AUTH_QUERY_KEY } from "@/constants"
 import { connectTelegramViaQr } from "../apis/telegram"
 import type { TelegramProfile, TelegramQrCode } from "../types/telegram"
+import { TELEGRAM_SOURCES_QUERY_KEY } from "./use-telegram-sources"
 
 export function useTelegramConnect() {
   const [qrCode, setQrCode] = useState<TelegramQrCode | null>(null)
@@ -26,6 +27,7 @@ export function useTelegramConnect() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: TELEGRAM_SOURCES_QUERY_KEY })
     },
   })
 

@@ -18,9 +18,13 @@ const apiEndPoints = {
         }
     },
     "jobSources": {
-        telegram: {
+        "telegram": {
             connectViaQR: {
                 url: "/telegram/auth/qr",
+                method: "GET"
+            },
+            availableSources: {
+                url: "/telegram/sources/available",
                 method: "GET"
             }
         }
