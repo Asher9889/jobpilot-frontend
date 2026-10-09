@@ -71,7 +71,7 @@ export function TelegramConnectPage() {
   const { qrCode, user, error, isConnecting, connect } = useTelegramConnect()
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
       <Link
         href="/job-sources"
         className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

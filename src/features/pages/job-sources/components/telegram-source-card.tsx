@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Send } from "lucide-react"
+import { useState } from "react"
+import { LoaderCircle, Send } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +19,21 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { TelegramAvatar } from "@/components/shared/telegram-avatar"
 import type { AuthTelegram } from "@/features/auth/types/types"
 import { telegramDisplayName } from "@/lib/telegram"
+import { useDisconnectTelegram } from "../hooks/use-telegram-disconnect"
 import { useJobSources } from "../hooks/use-job-sources"
 
 function DisconnectTelegramDialog() {
+  const [open, setOpen] = useState(false)
+  const disconnect = useDisconnectTelegram()
+
   return (
-    <AlertDialog>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        if (nextOpen) disconnect.reset()
+      }}
+    >
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">
           Disconnect
@@ -36,10 +47,24 @@ function DisconnectTelegramDialog() {
             reconnect any time by linking your account again.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        {disconnect.error && (
+          <p className="text-sm text-destructive">{disconnect.error.message}</p>
+        )}
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          {/* TODO: call the backend disconnect endpoint once it exists; for now the dialog only confirms intent. */}
-          <AlertDialogAction variant="destructive">Disconnect</AlertDialogAction>
+          <AlertDialogCancel disabled={disconnect.isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={disconnect.isPending}
+            onClick={(event) => {
+              event.preventDefault()
+              disconnect.mutate(undefined, { onSuccess: () => setOpen(false) })
+            }}
+          >
+            {disconnect.isPending && <LoaderCircle className="size-4 animate-spin" />}
+            Disconnect
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

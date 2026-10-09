@@ -14,7 +14,9 @@ function toTelegramSource(dto: TelegramSourceDto): TelegramSource | null {
   return {
     id: dto.id,
     name: dto.name ?? dto.title ?? "Untitled source",
-    kind: dto.isChannel ? "channel" : "group",
+    // Megagroups are flagged as both group and channel; the add-job-sources
+    // endpoint treats anything with isGroup as TELEGRAM_GROUP — mirror that.
+    kind: dto.isGroup ? "group" : "channel",
     pinned: dto.pinned ?? false,
     archived: dto.archived ?? false,
     unreadCount: dto.unreadCount ?? 0,

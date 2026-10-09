@@ -34,6 +34,10 @@ const apiEndPoints = {
             availableSources: {
                 url: "/telegram/sources/available",
                 method: "GET"
+            },
+            logout: {
+                url: "/telegram/",
+                method: "DELETE"
             }
         }
     }

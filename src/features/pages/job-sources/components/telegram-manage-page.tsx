@@ -129,10 +129,7 @@ export function TelegramManagePage({ telegram }: { telegram: AuthTelegram }) {
       if (!source) continue
       items.push({
         provider: JOB_SOURCE_PROVIDER.TELEGRAM,
-        type:
-          source.kind === "channel"
-            ? JOB_SOURCE_TYPE.TELEGRAM_CHANNEL
-            : JOB_SOURCE_TYPE.TELEGRAM_GROUP,
+        type: source.kind === "channel" ? JOB_SOURCE_TYPE.TELEGRAM_CHANNEL : JOB_SOURCE_TYPE.TELEGRAM_GROUP,
         externalSourceId: source.id,
       })
     }

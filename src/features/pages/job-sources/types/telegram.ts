@@ -33,6 +33,12 @@ export type TelegramConnectError = {
   message: string
 }
 
+export type TelegramDisconnectResult = {
+  status: string
+  revokedRemotely: boolean
+  alreadyDisconnected: boolean
+}
+
 export type TelegramSseEvent =
   | { type: "qr"; data: TelegramQrCode }
   | { type: "done"; data: TelegramConnectViaQrResponse }
