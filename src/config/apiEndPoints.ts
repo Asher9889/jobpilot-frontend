@@ -17,6 +17,20 @@ const apiEndPoints = {
             method: "GET"
         }
     },
+    "candidateProfile": {
+        get: {
+            url: "/candidate-profile",
+            method: "GET"
+        },
+        update: {
+            url: "/candidate-profile",
+            method: "PATCH"
+        },
+        uploadResume: {
+            url: "/candidate-profile/resume",
+            method: "POST"
+        }
+    },
     "jobSources": {
         list: {
             url: "/job-sources",
