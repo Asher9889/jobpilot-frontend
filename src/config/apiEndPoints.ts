@@ -17,6 +17,16 @@ const apiEndPoints = {
             method: "GET"
         }
     },
+    "jobMatches": {
+        list: {
+            url: "/job-matches",
+            method: "GET"
+        },
+        detail: {
+            url: "/job-matches/",
+            method: "GET"
+        }
+    },
     "candidateProfile": {
         get: {
             url: "/candidate-profile",

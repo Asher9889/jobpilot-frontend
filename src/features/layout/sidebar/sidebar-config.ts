@@ -1,4 +1,5 @@
 import {
+  Briefcase,
   BriefcaseBusiness,
   Building2,
   CircleHelp,
@@ -18,7 +19,7 @@ export const mainNav: SidebarGroup[] = [
   {
     label: "Recruiting",
     items: [
-      // { title: "Jobs", href: "/jobs", icon: BriefcaseBusiness, badge: 12 },
+      { title: "Jobs", href: "/jobs", icon: Briefcase },
       { title: "Job Sources", href: "/job-sources", icon: BriefcaseBusiness },
       { title: "Candidates", href: "/candidates", icon: Users },
       { title: "Companies", href: "/companies", icon: Building2 },
