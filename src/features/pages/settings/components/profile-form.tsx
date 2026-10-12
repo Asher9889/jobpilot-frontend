@@ -14,7 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useCurrentUser } from "@/features/auth/hooks/use-auth"
 import {
   EMPLOYMENT_TYPE,
   EMPLOYMENT_TYPE_LABEL,
@@ -44,6 +46,7 @@ function cleanString(value: string | null | undefined): string | null {
 
 function formValuesFromProfile(profile: CandidateProfile): ProfileFormValues {
   return {
+    name: profile?.name ?? "",
     headline: profile?.headline ?? "",
     summary: profile?.summary ?? "",
     skills: profile?.skills?.map((skill) => ({
@@ -73,6 +76,7 @@ function formValuesFromProfile(profile: CandidateProfile): ProfileFormValues {
 
 function payloadFromFormValues(values: ProfileFormValues): UpdateCandidateProfilePayload {
   return {
+    name: values.name.trim(),
     headline: cleanString(values.headline),
     summary: cleanString(values.summary),
     skills: values.skills.map((skill) => ({
@@ -122,6 +126,7 @@ function toggleValue<T>(values: T[], value: T): T[] {
 }
 
 export function ProfileForm({ profile }: { profile: CandidateProfile }) {
+  const { user } = useCurrentUser()
   const update = useUpdateProfile()
   const uploadResume = useUploadResume()
 
@@ -145,8 +150,39 @@ export function ProfileForm({ profile }: { profile: CandidateProfile }) {
           <CardContent className="space-y-4 p-5">
             <SectionHeader
               title="Basic information"
-              description="A headline and summary that describe you at a glance."
+              description="Your name plus a headline and summary that describe you at a glance."
             />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="sm:max-w-xs">
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      placeholder="e.g. Aarav Sharma"
+                      maxLength={50}
+                      className="text-xs"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="space-y-1.5 sm:max-w-xs">
+              <Label htmlFor="profile-email" className="font-medium">Email</Label>
+              <Input
+                id="profile-email"
+                type="email"
+                disabled
+                value={user?.email ?? "N/A"}
+                readOnly
+                aria-readonly
+                className="cursor-default bg-muted/50 text-xs"
+              />
+            </div>
             <FormField
               control={form.control}
               name="headline"

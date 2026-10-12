@@ -44,6 +44,11 @@ export const profileEducationSchema = z.object({
 })
 
 export const profileFormSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(50, "Name must be at most 50 characters"),
   headline: z.string().trim().max(160, "Headline must be at most 160 characters"),
   summary: z.string().trim().max(2000, "Summary must be at most 2000 characters"),
   skills: z.array(profileSkillSchema).max(50, "You can add up to 50 skills"),

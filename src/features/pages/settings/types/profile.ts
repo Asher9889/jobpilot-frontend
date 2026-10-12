@@ -40,6 +40,7 @@ export interface ProfileCompletion {
 
 export interface CandidateProfile {
   id: string
+  name: string | null
   headline: string | null
   summary: string | null
   skills: ProfileSkill[]
@@ -51,6 +52,7 @@ export interface CandidateProfile {
 }
 
 export interface UpdateCandidateProfilePayload {
+  name: string
   headline: string | null
   summary: string | null
   skills: ProfileSkill[]
